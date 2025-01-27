@@ -1,9 +1,10 @@
 import express from 'express';
 import cors from "cors";
 import { connectDB } from './config/db.js';
-import Form from './models/form.modal.js';
+import Donations from './models/donations.modal.js';
 import dotenv from 'dotenv';
 import path from "path";
+import LoginForm from './models/login.modal.js';
 
 const app = new express();
 
@@ -14,13 +15,38 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
-app.post('/api/form', async (req, res) => {
+app.post('/api/login', async (req, res) => {
+    const body = req.body;
+    if (!body.username || !body.password) {
+        return res.status(400).json({ status: 'failed', message: 'Please provide all the details' })
+    }
+
+    const loginForm = new LoginForm(body);
+    try {
+        await loginForm.findOne({username: body.username})
+                .then(user => {
+                    if (user) {
+                        if (user.password === body.password) {
+                            res.status(201).json({ status: 'success', data: user })
+                        } else {
+                            res.status(400).json({ status: 'failed', message: 'Invalid login details' })
+                        }
+                    } else {
+                        res.status(400).json({ status: 'failed', message: 'Invalid login details' })
+                    }
+                });
+    } catch (e) {
+        res.status(400).json({ status: 'failed', message: 'Invalid login details' })
+    }
+});
+
+app.post('/api/donations', async (req, res) => {
     const body = req.body;
     if (!body.name || !body.contact || !body.address) {
         return res.status(400).json({ status: 'failed', message: 'Please provide all the details' })
     }
 
-    const newForm = new Form(body);
+    const newForm = new Donations(body);
     try {
         await newForm.save();
         res.status(201).json({ status: 'success', data: newForm })

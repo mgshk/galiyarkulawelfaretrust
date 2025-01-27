@@ -125,7 +125,7 @@ function DonationList() {
                             <Col xs={2} md={1}>Time</Col>
                             <Col xs={2} md={2}></Col>
                         </Row>
-                        {donatorsList.map((donator, index) => (
+                        {donatorsList.map((donator) => (
                             <Row className='list-content'>
                                 <Col xs={2} md={1}>{donator.name}</Col>
                                 <Col xs={2} md={1}>{donator.mobileno}</Col>
