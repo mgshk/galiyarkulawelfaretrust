@@ -21,22 +21,14 @@ app.post('/api/login', async (req, res) => {
         return res.status(400).json({ status: 'failed', message: 'Please provide all the details' })
     }
 
-    const loginForm = new LoginForm(body);
     try {
-        await loginForm.findOne({username: body.username})
-                .then(user => {
-                    if (user) {
-                        if (user.password === body.password) {
-                            res.status(201).json({ status: 'success', data: user })
-                        } else {
-                            res.status(400).json({ status: 'failed', message: 'Invalid login details' })
-                        }
-                    } else {
-                        res.status(400).json({ status: 'failed', message: 'Invalid login details' })
-                    }
-                });
+        const user = await LoginForm.findOne({username: body.username, password: body.password});
+        if (!user) {
+            res.status(400).json({ status: 'failed', message: 'Invalid login details' })
+        }
+        res.status(201).json({ status: 'success', data: user })
     } catch (e) {
-        res.status(400).json({ status: 'failed', message: 'Invalid login details' })
+        res.status(400).json({ status: 'failed', message: e })
     }
 });
 
